@@ -1,0 +1,294 @@
+CREATE TABLE downloads (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    url TEXT NOT NULL,
+    title TEXT NOT NULL,
+    author TEXT NOT NULL,
+    thumb TEXT NOT NULL,
+    duration TEXT NOT NULL,
+    type TEXT NOT NULL,
+    format TEXT NOT NULL,
+    container TEXT NOT NULL DEFAULT 'Default',
+    downloadSections TEXT NOT NULL DEFAULT '',
+    allFormats TEXT NOT NULL,
+    downloadPath TEXT NOT NULL,
+    website TEXT NOT NULL,
+    downloadSize TEXT NOT NULL,
+    playlistTitle TEXT NOT NULL,
+    audioPreferences TEXT NOT NULL,
+    videoPreferences TEXT NOT NULL,
+    extraCommands TEXT NOT NULL DEFAULT '',
+    customFileNameTemplate TEXT NOT NULL,
+    SaveThumb INTEGER NOT NULL,
+    status TEXT NOT NULL DEFAULT 'Queued',
+    downloadStartTime INTEGER NOT NULL DEFAULT 0,
+    logID INTEGER,
+    playlistURL TEXT DEFAULT '',
+    playlistIndex INTEGER,
+    incognito INTEGER NOT NULL DEFAULT 0,
+    availableSubtitles TEXT NOT NULL DEFAULT '[]',
+    rowNumber INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE history (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    url TEXT NOT NULL,
+    title TEXT NOT NULL,
+    author TEXT NOT NULL,
+    duration TEXT NOT NULL,
+    thumb TEXT NOT NULL,
+    type TEXT NOT NULL,
+    time INTEGER NOT NULL,
+    downloadPath TEXT NOT NULL,
+    website TEXT NOT NULL,
+    format TEXT NOT NULL,
+    filesize INTEGER NOT NULL DEFAULT 0,
+    downloadId INTEGER NOT NULL DEFAULT 0,
+    command TEXT NOT NULL DEFAULT ''
+);
+
+CREATE TABLE command_templates (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    useAsExtraCommand INTEGER NOT NULL,
+    useAsExtraCommandAudio INTEGER NOT NULL,
+    useAsExtraCommandVideo INTEGER NOT NULL,
+    useAsExtraCommandDataFetching INTEGER NOT NULL,
+    preferredCommandTemplate INTEGER NOT NULL,
+    urlRegex TEXT NOT NULL
+);
+
+CREATE TABLE cookies (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL
+);
+
+CREATE TABLE logs (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    log TEXT NOT NULL,
+    time INTEGER NOT NULL,
+    type TEXT NOT NULL
+);
+
+CREATE TABLE observe_sources (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    url TEXT NOT NULL,
+    name TEXT NOT NULL,
+    type TEXT NOT NULL,
+    downloadItemTemplate TEXT NOT NULL,
+    everyNr INTEGER NOT NULL,
+    everyCategory TEXT NOT NULL,
+    everyTime INTEGER NOT NULL,
+    weeklyConfig TEXT,
+    monthlyConfig TEXT,
+    status TEXT NOT NULL,
+    startsTime INTEGER NOT NULL,
+    endsDate INTEGER NOT NULL DEFAULT 0,
+    endsAfterCount INTEGER NOT NULL DEFAULT 0,
+    runCount INTEGER NOT NULL DEFAULT 0,
+    getOnlyNewUploads INTEGER NOT NULL DEFAULT 0,
+    retryMissingDownloads INTEGER NOT NULL DEFAULT 0,
+    ignoredLinks TEXT NOT NULL DEFAULT '[]',
+    alreadyProcessedLinks TEXT NOT NULL DEFAULT '[]',
+    syncWithSource INTEGER NOT NULL DEFAULT 0,
+    lastObserved INTEGER NOT NULL DEFAULT 0
+);
+
+-- Delete the unnecessary join tables
+DROP TABLE IF EXISTS observe_sources_weekly;
+DROP TABLE IF EXISTS observe_sources_monthly;
+
+CREATE TABLE search_history (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    query TEXT NOT NULL,
+    time INTEGER NOT NULL
+);
+
+CREATE TABLE terminal_history (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    command TEXT NOT NULL
+);
+
+CREATE TABLE template_shortcuts (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL
+);
+
+CREATE TABLE observe_sources_weekly (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    source_id INTEGER NOT NULL,
+    day INTEGER NOT NULL,
+    FOREIGN KEY(source_id) REFERENCES observe_sources(id) ON DELETE CASCADE
+);
+
+CREATE TABLE observe_sources_monthly (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    source_id INTEGER NOT NULL,
+    day INTEGER NOT NULL,
+    FOREIGN KEY(source_id) REFERENCES observe_sources(id) ON DELETE CASCADE
+);
+
+CREATE TABLE results (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    url TEXT NOT NULL,
+    title TEXT NOT NULL,
+    author TEXT NOT NULL,
+    duration TEXT NOT NULL,
+    thumb TEXT NOT NULL,
+    website TEXT NOT NULL,
+    playlistTitle TEXT NOT NULL,
+    formats TEXT NOT NULL,
+    urls TEXT NOT NULL,
+    chapters TEXT NOT NULL,
+    playlistURL TEXT NOT NULL,
+    playlistIndex INTEGER,
+    creationTime INTEGER NOT NULL,
+    availableSubtitles TEXT NOT NULL
+);
+
+-- DOWNLOADS QUERIES
+getAllDownloads:
+SELECT * FROM downloads ORDER BY status;
+
+getActiveDownloads:
+SELECT * FROM downloads WHERE status = 'Active';
+
+getActiveAndQueuedDownloadsList:
+SELECT * FROM downloads WHERE status IN ('Active','Queued', 'Scheduled');
+
+getActiveAndQueuedDownloadIDs:
+SELECT id FROM downloads WHERE status IN ('Active','Queued', 'Paused');
+
+getQueuedDownloadsList:
+SELECT * FROM downloads WHERE status='Queued' ORDER BY downloadStartTime, id;
+
+getScheduledDownloadsList:
+SELECT * FROM downloads WHERE status='Scheduled' ORDER BY downloadStartTime, id;
+
+getDownloadById:
+SELECT * FROM downloads WHERE id=? LIMIT 1;
+
+getDownloadsByIds:
+SELECT * FROM downloads WHERE id IN ?;
+
+getLastDownloadId:
+SELECT id FROM downloads ORDER BY id DESC LIMIT 1;
+
+insertDownload:
+INSERT OR REPLACE INTO downloads (id, url, title, author, thumb, duration, type, format, container, downloadSections, allFormats, downloadPath, website, downloadSize, playlistTitle, audioPreferences, videoPreferences, extraCommands, customFileNameTemplate, SaveThumb, status, downloadStartTime, logID, playlistURL, playlistIndex, incognito, availableSubtitles, rowNumber)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteDownload:
+DELETE FROM downloads WHERE id = ?;
+
+deleteCancelled:
+DELETE FROM downloads WHERE status='Cancelled';
+
+deleteErrored:
+DELETE FROM downloads WHERE status='Error';
+
+deleteAllDownloads:
+DELETE FROM downloads;
+
+updateDownloadStatus:
+UPDATE downloads SET status=? WHERE id=?;
+
+updateDownloadID:
+UPDATE downloads SET id=? WHERE id=?;
+
+-- HISTORY QUERIES
+getAllHistory:
+SELECT * FROM history ORDER BY id DESC;
+
+getHistoryItem:
+SELECT * FROM history WHERE id=? LIMIT 1;
+
+insertHistory:
+INSERT OR REPLACE INTO history (id, url, title, author, duration, thumb, type, time, downloadPath, website, format, filesize, downloadId, command)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteHistory:
+DELETE FROM history WHERE id = ?;
+
+deleteAllHistory:
+DELETE FROM history;
+
+-- COMMAND TEMPLATE QUERIES
+getAllTemplates:
+SELECT * FROM command_templates ORDER BY id DESC;
+
+insertTemplate:
+INSERT OR REPLACE INTO command_templates (id, title, content, useAsExtraCommand, useAsExtraCommandAudio, useAsExtraCommandVideo, useAsExtraCommandDataFetching, preferredCommandTemplate, urlRegex)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteTemplate:
+DELETE FROM command_templates WHERE id = ?;
+
+-- COOKIE QUERIES
+getAllCookies:
+SELECT * FROM cookies ORDER BY id DESC;
+
+insertCookie:
+INSERT OR REPLACE INTO cookies (id, title, content)
+VALUES (?, ?, ?);
+
+deleteCookie:
+DELETE FROM cookies WHERE id = ?;
+
+-- LOG QUERIES
+getAllLogs:
+SELECT * FROM logs ORDER BY id DESC;
+
+insertLog:
+INSERT OR REPLACE INTO logs (id, title, log, time, type)
+VALUES (?, ?, ?, ?, ?);
+
+deleteLog:
+DELETE FROM logs WHERE id = ?;
+
+-- OBSERVE SOURCE QUERIES
+getAllObserveSources:
+SELECT * FROM observe_sources ORDER BY id DESC;
+
+insertObserveSource:
+INSERT OR REPLACE INTO observe_sources (id, url, name, type, downloadItemTemplate, everyNr, everyCategory, everyTime, weeklyConfig, monthlyConfig, status, startsTime, endsDate, endsAfterCount, runCount, getOnlyNewUploads, retryMissingDownloads, ignoredLinks, alreadyProcessedLinks, syncWithSource, lastObserved)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteObserveSource:
+DELETE FROM observe_sources WHERE id = ?;
+
+-- SEARCH HISTORY QUERIES
+getSearchHistory:
+SELECT * FROM search_history ORDER BY time DESC;
+
+insertSearchHistory:
+INSERT OR REPLACE INTO search_history (id, query, time)
+VALUES (?, ?, ?);
+
+deleteSearchHistory:
+DELETE FROM search_history WHERE id = ?;
+
+-- TERMINAL HISTORY QUERIES
+getTerminalHistory:
+SELECT * FROM terminal_history ORDER BY id DESC;
+
+insertTerminalHistory:
+INSERT OR REPLACE INTO terminal_history (id, command)
+VALUES (?, ?);
+
+deleteTerminalHistory:
+DELETE FROM terminal_history WHERE id = ?;
+
+-- RESULT QUERIES
+getAllResults:
+SELECT * FROM results ORDER BY id;
+
+insertResult:
+INSERT OR REPLACE INTO results (id, url, title, author, duration, thumb, website, playlistTitle, formats, urls, chapters, playlistURL, playlistIndex, creationTime, availableSubtitles)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteResult:
+DELETE FROM results WHERE id = ?;
