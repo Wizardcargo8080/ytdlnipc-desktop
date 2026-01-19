@@ -171,7 +171,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 # Contact
-Feel free to put your ideas and discuss in [our discord server] (https://discord.gg/B8AR2ztHx) 
+Feel free to put your ideas and discuss in [our discord server](https://discord.gg/B8AR2ztHx) 
 
 
 ---
