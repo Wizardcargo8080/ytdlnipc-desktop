@@ -170,6 +170,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [JetBrains Compose](https://www.jetbrains.com/lp/compose-multiplatform/) - The UI framework
 
 ---
+# Contact
+Feel free to put your ideas and discuss in [our discord server] (https://discord.gg/B8AR2ztHx) 
+
+
+---
 
 <p align="center">
   <b>⭐ Star this repo if you find it useful!</b><br>
