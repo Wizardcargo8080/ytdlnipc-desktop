@@ -91,6 +91,13 @@ We welcome contributions from the community! Here's how you can help:
 
 ### How to Contribute
 
+# A - issues tab
+1. **navigate to issues tab** go to the issues tab in this repo. 
+2. **open new issue** click on the green button with the text of "new issue". 
+3. **Implementation** put your github's username in the first line in the description and the title write your request in this In our case contribution request. 
+4. **Submit** submit the issue in the range of 1 day you will be in. 
+   
+# B - Fork
 1. **Fork** the repository
 2. **Create** a feature branch: `git checkout -b feature/amazing-feature`
 3. **Commit** your changes: `git commit -m 'Add amazing feature'`
