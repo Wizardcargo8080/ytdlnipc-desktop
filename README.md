@@ -1,4 +1,4 @@
-# YTDLnis Desktop
+# YTDLnipc Desktop
 
 A powerful desktop video/audio downloader powered by yt-dlp, ported from the popular [YTDLnis Android app](https://github.com/deniscerri/ytdlnis).
 
@@ -59,8 +59,8 @@ A powerful desktop video/audio downloader powered by yt-dlp, ported from the pop
 
 ```bash
 # Clone the repository
-git clone https://github.com/wizardcargo8080/ytdlnis-desktop.git
-cd ytdlnis-desktop
+git clone https://github.com/wizardcargo8080/ytdlnipc-desktop.git
+cd ytdlnipc-desktop
 
 # Run the application
 ./gradlew desktopApp:run     # Linux/macOS
