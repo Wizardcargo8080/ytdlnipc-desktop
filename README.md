@@ -1,3 +1,9 @@
+Note:
+The latest version is under development and we will try to make it close to the real ytdlnis. Also 
+Keep knowing that the current version is outdated and full of bugs and we will work as much as we can to make it the best after the Android version. 
+
+
+
 # YTDLnipc Desktop
 
 A powerful desktop video/audio downloader powered by yt-dlp, ported from the popular [YTDLnis Android app](https://github.com/deniscerri/ytdlnis).
